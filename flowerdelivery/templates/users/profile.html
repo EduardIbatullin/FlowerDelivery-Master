@@ -1,0 +1,37 @@
+<!-- flowerdelivery/templates/users/profile.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<h2>Профиль</h2>
+<table class="table">
+    <tr>
+        <th>Фамилия</th>
+        <td>{{ profile_data.last_name }}</td>
+    </tr>
+    <tr>
+        <th>Имя</th>
+        <td>{{ profile_data.first_name }}</td>
+    </tr>
+    <tr>
+        <th>Отчество</th>
+        <td>{{ profile_data.patronymic }}</td>
+    </tr>
+    <tr>
+        <th>Дата рождения</th>
+        <td>
+            {% if profile_data.birth_date %}
+                {{ profile_data.birth_date|date:"d F Y" }}
+            {% else %}
+                &mdash;
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<a href="{% url 'edit_profile' %}" class="btn btn-primary">Редактировать профиль</a>
+<a href="{% url 'register_bot' %}" class="btn btn-secondary">Регистрация телеграм</a>
+<a href="{% url 'delete_account' %}" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить свой профиль?')">Удалить профиль</a>
+{% endblock %}

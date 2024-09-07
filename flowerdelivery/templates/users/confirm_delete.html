@@ -1,0 +1,16 @@
+<!-- flowerdelivery/templates/users/confirm_delete.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}
+Удалить профиль | FlowerDelivery
+{% endblock %}
+
+{% block content %}
+<h2>Вы уверены, что хотите удалить свой профиль?</h2>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Удалить профиль</button>
+    <a href="{% url 'profile' %}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}

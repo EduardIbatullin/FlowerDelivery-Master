@@ -1,0 +1,12 @@
+<!-- flowerdelivery/templates/home.html -->
+{% extends 'base.html' %}
+
+{% block title %}Главная | FlowerDelivery{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Добро пожаловать в FlowerDelivery Master!</h1>
+    <p class="lead">Цветы для ваших особенных случаев. Исследуйте наш каталог и делайте покупки прямо сейчас!</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'catalog_list' %}" role="button">Перейти в каталог</a>
+</div>
+{% endblock %}

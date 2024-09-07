@@ -1,0 +1,20 @@
+<!-- flowerdelivery/templates/orders/order_history.html -->
+{% extends 'base.html' %}
+
+{% block title %}История заказов | FlowerDelivery{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Ваша история заказов</h2>
+{% if orders %}
+<ul class="list-group">
+    {% for order in orders %}
+    <li class="list-group-item">
+        Заказ #{{ order.id }} - {{ order.status }} - {{ order.total_price }} ₽
+        <a href="{% url 'order_detail' order.id %}" class="btn btn-link">Подробнее</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>У вас еще нет заказов.</p>
+{% endif %}
+{% endblock %}
