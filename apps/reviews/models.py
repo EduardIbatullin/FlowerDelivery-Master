@@ -1,16 +1,24 @@
 # apps/reviews/models.py
 
 from django.db import models
-from django.conf import settings  # Используем кастомную модель пользователя
-from apps.catalog.models import Product  # Импортируем модель Product
+from apps.catalog.models import Product
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+
+User = get_user_model()
 
 
 class Review(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Продукт', related_name='reviews')
-    rating = models.PositiveIntegerField(default=1, verbose_name='Рейтинг')
-    comment = models.TextField(verbose_name='Комментарий')  # Добавляем недостающее поле 'comment'
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE, verbose_name="Букет")
+    user = models.ForeignKey(User, related_name='reviews', on_delete=models.CASCADE, verbose_name="Пользователь")
+    rating = models.PositiveSmallIntegerField(verbose_name="Оценка", choices=[(i, i) for i in range(1, 6)], default=5)
+    comment = models.TextField(verbose_name="Текст отзыва", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата отзыва")
 
     def __str__(self):
-        return f"Review by {self.user} for {self.product}"
+        return f"Отзыв на {self.product.name} от {self.user.username}: {self.rating} звёзд"
+
+    class Meta:
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
+        ordering = ['-created_at']

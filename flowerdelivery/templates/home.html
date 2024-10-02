@@ -1,12 +1,30 @@
 <!-- flowerdelivery/templates/home.html -->
-{% extends 'base.html' %}
 
-{% block title %}Главная | FlowerDelivery{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная | Classic Floral Shop{% endblock %}
 
 {% block content %}
-<div class="jumbotron text-center">
-    <h1 class="display-4">Добро пожаловать в FlowerDelivery Master!</h1>
-    <p class="lead">Цветы для ваших особенных случаев. Исследуйте наш каталог и делайте покупки прямо сейчас!</p>
-    <a class="btn btn-primary btn-lg" href="{% url 'catalog_list' %}" role="button">Перейти в каталог</a>
+<div class="text-center mb-4" style="background-color: rgba(255, 255, 255, 0.5); padding: 20px; border-radius: 10px;">
+    <!-- Заголовок -->
+    <h1 style="font-family: 'Georgia', serif; color: #5a4632; font-size: 48px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+        Добро пожаловать в Classic Floral Shop!
+    </h1>
+
+    <!-- Логотип -->
+    <div>
+        <img src="{% static 'images/vintage_logo.png' %}" alt="Classic Floral Shop Logo" style="width: 275px; margin: 20px 0;">
+    </div>
+
+    <!-- Описание -->
+    <p style="font-family: 'Georgia', serif; color: #5a4632; font-size: 30px;">
+        Цветы для ваших особенных случаев. <br> Исследуйте наш каталог и делайте покупки прямо сейчас!
+    </p>
+
+    <!-- Кнопка -->
+    <a href="{% url 'catalog:catalog_list' %}" class="btn btn-primary btn-lg">
+        Перейти в каталог
+    </a>
 </div>
 {% endblock %}

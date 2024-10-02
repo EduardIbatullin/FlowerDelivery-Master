@@ -1,22 +1,87 @@
 <!-- flowerdelivery/templates/catalog/catalog_list.html -->
-{% extends 'base.html' %}
 
-{% block title %}Каталог | FlowerDelivery{% endblock %}
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block title %}Коллекция букетов | Classic Floral Shop{% endblock %}
 
 {% block content %}
-<h2 class="text-center mb-4">Каталог продуктов</h2>
+<div class="d-flex justify-content-center align-items-center mb-4" style="min-height: 80px; background-color: rgba(255, 255, 255, 0.5); padding: 20px; border-radius: 10px;">
+    <h2 style="font-family: 'Georgia', serif; color: #5a4632; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); font-size: 36px;">
+        Коллекция элегантных букетов
+    </h2>
+</div>
 <div class="row">
     {% for product in products %}
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-            <div class="card-body text-center">
-                <h5 class="card-title">{{ product.name }}</h5>
-                <p class="card-text">{{ product.price }} ₽</p>
-                <a href="{% url 'product_detail' product.id %}" class="btn btn-success">Подробнее</a>
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+        <div class="card h-100" style="border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+            <!-- Фото букета -->
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+            {% else %}
+                <img src="{% static 'images/default_product.jpg' %}" class="card-img-top" alt="Нет изображения">
+            {% endif %}
+
+            <div class="card-body text-center" style="background-color: rgba(255, 255, 255, 0.85);">
+                <!-- Название букета -->
+                <h5 class="card-title" style="font-family: 'Georgia', serif; color: #5a4632;">{{ product.name }}</h5>
+
+                <!-- Рейтинг букета -->
+                {% if product.average_rating %}
+                    <p class="card-text" style="color: #b69b20;">Рейтинг: {{ product.average_rating|floatformat:1 }} из 5</p>
+                {% else %}
+                    <p class="card-text" style="color: #b69b20;">Нет оценок</p>
+                {% endif %}
+
+                <!-- Цена букета -->
+                {% if product.is_available %}
+                    <p class="card-text" style="color: #5a4632;">{{ product.price }} ₽</p>
+                {% else %}
+                    <p class="card-text" style="color: red;">Нет в наличии</p>
+                {% endif %}
+
+                <!-- Ссылка на подробности -->
+                <a href="{% url 'catalog:product_detail' product.pk %}" class="btn btn-secondary btn-sm m-1" style="background-color: #d2b79c; border: none;">Подробнее</a> <br>
+
+                <!-- Кнопка "В корзину" только для авторизованных пользователей -->
+                {% if product.is_available %}
+                    {% if user.is_authenticated %}
+                        {% if not user|is_admin and not user|is_employee %}
+                            <button class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#addToCartModal{{ product.pk }}" style="background-color: #d2b79c;">В корзину</button>
+                        {% endif %}
+                    {% else %}
+                        <p class="mt-2">Пожалуйста, <a href="{% url 'users:login' %}">войдите</a> или <a href="{% url 'users:register' %}">зарегистрируйтесь</a>, чтобы добавить в корзину.</p>
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
     </div>
+    <!-- Модальное окно для выбора количества -->
+    {% if user.is_authenticated %}
+    <div class="modal fade" id="addToCartModal{{ product.pk }}" tabindex="-1" role="dialog" aria-labelledby="addToCartModalLabel{{ product.pk }}" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 250px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addToCartModalLabel{{ product.pk }}">Выберите количество</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{% url 'cart:add_to_cart' product.pk %}" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <label for="quantity{{ product.pk }}">Количество:</label>
+                        <input type="number" name="quantity" id="quantity{{ product.pk }}" class="form-control" value="1" min="1">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Подтвердить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     {% endfor %}
 </div>
 {% endblock %}

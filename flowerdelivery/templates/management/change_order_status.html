@@ -1,0 +1,40 @@
+<!-- flowerdelivery/templates/management/change_order_status.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Изменение статуса заказа | Classic Floral Shop #{{ order.id }}{% endblock %}
+
+{% block content %}
+
+{% if form.errors %}
+    <div class="alert alert-danger">
+        {{ form.errors }}
+    </div>
+{% endif %}
+
+<h2 class="text-center mb-4">Изменение статуса заказа #{{ order.id }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.status.label_tag }}
+        {{ form.status }}
+    </div>
+
+    <button type="submit" name="change_status" class="btn btn-secondary" {% if order.complete %}disabled{% endif %}>Изменить статус</button>
+
+    {% if not order.complete %}
+        <button type="submit" name="complete_order" class="btn btn-secondary">Завершить заказ</button>
+    {% else %}
+        <button type="submit" name="remove_complete" class="btn btn-secondary">Снять завершение заказа</button>
+    {% endif %}
+
+    <a href="{% url 'management:order_list' %}" class="btn btn-secondary">Назад</a>
+</form>
+
+{% if order.complete %}
+    <br>
+    <p class="alert alert-info">Этот заказ завершен, статус больше не может быть изменен.</p>
+{% endif %}
+
+{% endblock %}

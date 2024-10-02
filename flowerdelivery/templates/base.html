@@ -1,8 +1,11 @@
 <!-- flowerdelivery/templates/base.html -->
+
+{% load static %}
+{% load custom_filters %} <!-- Подключение фильтров для проверки администратора -->
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    {% load static %}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,38 +14,57 @@
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 </head>
 <body>
-    <!-- Навигация -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <!-- Фиксированная навигация -->
+    <nav class="navbar navbar-expand-lg navbar-light">
         <a class="navbar-brand" href="{% url 'home' %}">
-            <img src="{% static 'images/logo.png' %}" alt="FlowerStore" style="height: 40px;">
+            <img src="{% static 'images/vintage_logo.png' %}" alt="Classic Floral Shop" style="height: 40px;">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Переключить навигацию">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item"><a class="nav-link" href="{% url 'catalog_list' %}">Каталог</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'catalog:catalog_list' %}">Каталог</a></li>
                 {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'cart_detail' %}">Корзина</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Профиль</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Выход</a></li>
+                    {% if user|is_admin %}
+                        <!-- Меню для администраторов -->
+                        <li class="nav-item"><a class="nav-link" href="{% url 'management:order_list' %}">Список заказов</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'analytics:analytics_dashboard' %}">Аналитика и Отчеты</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'users:profile' %}">Профиль</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'users:logout' %}">Выход</a></li>
+                    {% elif user|is_employee %}
+                        <!-- Меню для сотрудников -->
+                        <li class="nav-item"><a class="nav-link" href="{% url 'management:order_list' %}">Список заказов</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'users:profile' %}">Профиль</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'users:logout' %}">Выход</a></li>
+                    {% else %}
+                        <!-- Меню для обычных пользователей -->
+                        <li class="nav-item"><a class="nav-link" href="{% url 'cart:cart_detail' %}">Корзина</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'orders:order_history' %}">История заказов</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'users:profile' %}">Профиль</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'users:logout' %}">Выход</a></li>
+                    {% endif %}
                 {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Вход</a></li>
+                    <!-- Меню для неавторизованных пользователей -->
+                    <li class="nav-item"><a class="nav-link" href="{% url 'users:login' %}">Вход</a></li>
                 {% endif %}
             </ul>
         </div>
     </nav>
 
-    <!-- Основное содержимое -->
-    <div class="container mt-4">
+    <!-- Основное содержимое с отступом для хедера -->
+    <div class="content-wrapper container mt-4">
         {% block content %}
         {% endblock %}
     </div>
 
+    {% block extra_js %}
+    {% endblock %}
+
     <!-- Футер -->
-    <footer class="footer mt-5 p-3 bg-light">
-        <div class="container text-center">
-            <p>&copy; 2024 FlowerDelivery Master. Все права защищены.</p>
+    <footer class="footer">
+        <div class="container">
+            &copy; 2024 Classic Floral Shop. Все права защищены.
         </div>
     </footer>
 

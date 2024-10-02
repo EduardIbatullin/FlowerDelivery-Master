@@ -1,48 +1,21 @@
-import logging
-from telegram import Update, ForceReply
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from dotenv import load_dotenv
-import os
+# bot/bot.py
 
-# Загрузка переменных окружения из .env файла
-load_dotenv()
-
-# Получение токена из переменной окружения
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-
-# Включаем ведение журнала
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler
+from .handlers import register_start_command, register_callback, handle_start_command, view_analytics_handler, analytics_handler  # Импортируем analytics_handler
+from config import TELEGRAM_BOT_TOKEN
 
 
-# Команда start
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text(
-        "Здравствуйте! Я бот для заказа цветов. Вот что я умею:\n"
-        "/catalog - Просмотреть каталог цветов\n"
-        "/cart - Просмотреть корзину\n"
-        "/orders - Проверить статус ваших заказов\n"
-        "/help - Помощь"
-    )
+def main():
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
+    application.add_handler(CommandHandler("start", register_start_command, filters=None))
+    application.add_handler(CommandHandler("start", handle_start_command))
 
-# Основная функция
-def main() -> None:
-    # Убедитесь, что токен успешно загружен
-    if not TELEGRAM_BOT_TOKEN:
-        logger.error("Не удалось загрузить TELEGRAM_BOT_TOKEN из .env файла")
-        return
+    application.add_handler(CallbackQueryHandler(register_callback, pattern='register'))
+    application.add_handler(CallbackQueryHandler(view_analytics_handler, pattern='view_analytics'))
+    application.add_handler(CallbackQueryHandler(analytics_handler))  # Обработчик для нажатия кнопок периодов аналитики
 
-    updater = Updater(TELEGRAM_BOT_TOKEN)
-
-    dispatcher = updater.dispatcher
-    dispatcher.add_handler(CommandHandler("start", start))
-
-    updater.start_polling()
-    updater.idle()
+    application.run_polling()
 
 
 if __name__ == '__main__':

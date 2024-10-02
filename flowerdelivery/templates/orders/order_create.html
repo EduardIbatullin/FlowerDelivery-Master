@@ -1,13 +1,120 @@
 <!-- flowerdelivery/templates/orders/order_create.html -->
-{% extends 'base.html' %}
 
-{% block title %}Создание заказа | FlowerDelivery{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Оформление заказа | Classic Floral Shop{% endblock %}
 
 {% block content %}
-<h2 class="text-center mb-4">Создание заказа</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Отправить заказ</button>
-</form>
+<div class="container mt-4">
+    <h2 class="text-center mb-4" style="color: #7B4E2F;">Оформление заказа</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered" style="background-color: #f9f5f0;">
+            <thead style="background-color: #e5cbb2;">
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Название</th>
+                    <th scope="col">Количество</th>
+                    <th scope="col">Цена</th>
+                    <th scope="col">Итоговая цена</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td data-label="Изображение">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" title="{{ item.product.description }}" style="width: 60px; height: auto;">
+                        {% endif %}
+                    </td>
+                    <td data-label="Название">{{ item.product.name }}</td>
+                    <td data-label="Количество">
+                        <form action="{% url 'orders:update_order_item' item.pk %}" method="post">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control" style="width: 50px; display: inline-block;">
+                            <button type="submit" class="btn btn-sm btn-primary">Обновить</button>
+                        </form>
+                    </td>
+                    <td data-label="Цена">{{ item.product.price }} ₽</td>
+                    <td data-label="Итоговая цена">{{ item.total_price }} ₽</td>
+                    <td data-label="Удалить">
+                        <!-- Форма для удаления товара из корзины -->
+                        <form action="{% url 'orders:delete_item' item.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Форма оформления заказа -->
+    <form method="post" id="order-form">
+        {% csrf_token %}
+
+        <!-- Итоговая стоимость -->
+        <div class="mb-4">
+            <h4 style="color: #7B4E2F;">Итоговая сумма: {{ total_price }} ₽</h4>
+        </div>
+
+        <div class="mb-4">
+            <h5 style="color: #7B4E2F;">Контактная информация:</h5>
+            <label for="delivery_address" style="color: #7B4E2F;">Адрес доставки: <span class="text-danger">*</span></label>
+            <input type="text" id="delivery_address" name="delivery_address" value="{{ form.delivery_address.value|default:'' }}" class="form-control mb-2" required>
+
+            <label for="contact_phone" style="color: #7B4E2F;">Контактный телефон: <span class="text-danger">*</span></label>
+            <input type="text" id="contact_phone" name="contact_phone" value="{{ form.contact_phone.value|default:'' }}" class="form-control mb-2" required>
+        </div>
+
+        <!-- Блок для даты и времени -->
+        <div class="mb-4">
+            <h5 style="color: #7B4E2F;">Дата и время доставки:</h5>
+            <label for="delivery_date" style="color: #7B4E2F;">Дата доставки:</label>
+            {{ form.delivery_date }}
+
+            <br>
+
+            <label for="delivery_time" style="color: #7B4E2F;" class="mt-2">Время доставки:</label>
+            {{ form.delivery_time }}
+        </div>
+
+        <div class="mb-4">
+            <h5 style="color: #7B4E2F;">Дополнительная информация:</h5>
+            <textarea name="additional_info" id="additional_info" class="form-control" rows="4" placeholder="Введите дополнительную информацию">{{ form.additional_info.value|default:'' }}</textarea>
+        </div>
+
+        <!-- Блок для выбора уведомлений -->
+        <div class="mb-4">
+            <h5 style="color: #7B4E2F;">Для получения информации о статусе заказа выберите способ отправки уведомления:</h5>
+
+            {% if has_email %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="email_notifications" id="email_checkbox" value="email" {% if form.email_notifications.value %}checked{% endif %}>
+                    <label class="form-check-label" for="email_checkbox" style="color: #7B4E2F;">Email (данный способ находится в разработке): {{ user_profile.email }}.</label>
+                </div>
+            {% else %}
+                <p style="color: #7B4E2F;">Email (данный способ находится в разработке): для выбора данного способа получения оповещения зарегистрируйте свой email на странице <a href="{% url 'users:profile' %}">Профиля</a></p>
+            {% endif %}
+
+            {% if has_telegram %}
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" name="telegram_notifications" id="telegram_checkbox" value="telegram" {% if form.telegram_notifications.value %}checked{% endif %}>
+                    <label class="form-check-label" for="telegram_checkbox" style="color: #7B4E2F;">Телеграм: ID - {{ user_profile.telegram_id }}</label>
+                </div>
+            {% else %}
+                <p style="color: #7B4E2F;">Телеграм: для выбора данного способа получения оповещения зарегистрируйтесь в телеграм-боте на странице <a href="{% url 'users:profile' %}">Профиля</a></p>
+            {% endif %}
+        </div>
+
+        <!-- Кнопки -->
+        <div class="d-flex justify-content-center">
+            <button type="submit" name="submit_order" class="btn btn-primary">Оформить заказ</button>
+            <button type="reset" class="btn btn-primary ml-2">Очистить</button>
+        </div>
+    </form>
+</div>
 {% endblock %}
