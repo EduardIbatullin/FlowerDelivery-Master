@@ -1,0 +1,92 @@
+<!-- flowerdelivery/templates/analytics/analytics_dashboard.html -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Аналитика и отчеты | Classic Floral Shop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">Аналитика и отчеты</h1>
+
+    <!-- Форма фильтрации аналитики -->
+    <form method="get" action="{% url 'analytics:analytics_dashboard' %}" class="mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                {{ form.period.label_tag }}
+                {{ form.period }}
+            </div>
+            <div class="col-md-6">
+                {{ form.product.label_tag }}
+                {{ form.product }}
+            </div>
+        </div>
+
+        <!-- Условное отображение полей для пользовательского периода -->
+        <div class="row mt-2" id="custom-period" style="display: none;">
+            <div class="col-md-6">
+                {{ form.custom_start_date.label_tag }}
+                {{ form.custom_start_date }}
+            </div>
+            <div class="col-md-6">
+                {{ form.custom_end_date.label_tag }}
+                {{ form.custom_end_date }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Применить фильтр</button>
+    </form>
+
+    <!-- Кнопка для обновления аналитики -->
+    <form method="post" action="{% url 'analytics:update_analytics' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning mb-4">Обновить аналитику продаж</button>
+    </form>
+
+    <!-- Отображение аналитических данных -->
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Общее количество заказов:</h4>
+            <p>{{ total_orders }} заказов</p>
+        </div>
+        <div class="col-md-6">
+            <h4>Общая выручка:</h4>
+            <p>{{ total_revenue }} ₽</p>
+        </div>
+    </div>
+
+    <!-- Название графика -->
+    <h4 class="my-4">{{ chart_title }}</h4>
+    <div class="chart-container" style="position: relative; height:40vh; width:80vw;">
+        <canvas id="salesChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/scripts.js' %}"></script> <!-- Подключение внешнего скрипта -->
+<script>
+    const periodField = document.querySelector('select[name="period"]');
+    const customPeriod = document.getElementById('custom-period');
+
+    // Показать/скрыть поля для пользовательского периода
+    function toggleCustomPeriod() {
+        if (periodField.value === 'custom') {
+            customPeriod.style.display = 'flex';
+        } else {
+            customPeriod.style.display = 'none';
+        }
+    }
+
+    periodField.addEventListener('change', toggleCustomPeriod);
+    toggleCustomPeriod();  // Проверить текущее состояние при загрузке страницы
+
+    // Построение графика
+    const salesChartLabels = {{ labels|safe }};
+    const salesChartData = {{ data|safe }};
+    console.log('Labels:', salesChartLabels);
+    console.log('Data:', salesChartData);
+    drawSalesChart('salesChart', salesChartLabels, salesChartData);
+</script>
+{% endblock %}

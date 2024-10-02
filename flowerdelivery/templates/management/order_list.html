@@ -1,0 +1,57 @@
+<!-- flowerdelivery/templates/management/order_list.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Список заказов | Classic Floral Shop{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Список заказов</h2>
+
+<!-- Форма фильтрации -->
+<form method="get" class="form-inline mb-4 justify-content-center">
+    <div class="form-group mx-2" style="color: #7B4E2F;>
+        {{ form.status.label_tag }}
+        {{ form.status }}
+    </div>
+    <div class="form-group mx-2" style="color: #7B4E2F;>
+        {{ form.complete.label_tag }}
+        {{ form.complete }}
+    </div>
+    <button type="submit" class="btn btn-secondary btn-sm">Применить фильтр</button>
+</form>
+
+{% if orders %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Пользователь</th>
+            <th>Дата создания</th>
+            <th>Стоимость</th>
+            <th>Статус</th>
+            <th>Завершен</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.user.username }}</td>
+            <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+            <td>{{ order.total_price }} ₽</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>{% if order.complete %}Да{% else %}Нет{% endif %}</td>
+            <td>
+                <a href="{% url 'management:order_detail' order.id %}" class="btn btn-secondary btn-sm">Детали</a>
+                <a href="{% url 'management:change_order_status' order.id %}" class="btn btn-warning btn-sm">Изменить статус</a>
+                <a href="{% url 'management:order_status_history' order.id %}" class="btn btn-info btn-sm">История</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Заказы отсутствуют.</p>
+{% endif %}
+{% endblock %}

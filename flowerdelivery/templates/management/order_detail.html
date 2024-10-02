@@ -1,0 +1,71 @@
+<!-- flowerdelivery/templates/management/order_detail.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Детали заказа #{{ order.id }} | Classic Floral Shop {% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Детали заказа #{{ order.id }}</h2>
+
+<table class="table">
+    <tr>
+        <th>Пользователь</th>
+        <td>{{ order.user.username }}</td>
+    </tr>
+    <tr>
+        <th>Дата создания</th>
+        <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+    </tr>
+    <tr>
+        <th>Статус</th>
+        <td>{{ order.get_status_display }}</td>
+    </tr>
+    <tr>
+        <th>Общая стоимость</th>
+        <td>{{ order.total_price }} ₽</td>
+    </tr>
+    <tr>
+        <th>Адрес доставки</th>
+        <td>{{ order.delivery_address }}</td>
+    </tr>
+    <tr>
+        <th>Контактный телефон</th>
+        <td>{{ order.contact_phone }}</td>
+    </tr>
+    <tr>
+        <th>Дополнительная информация</th>
+        <td>{{ order.additional_info }}</td>
+    </tr>
+</table>
+
+<h3 class="mt-4">Заказанные товары</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Изображение</th>
+            <th>Название</th>
+            <th>Количество</th>
+            <th>Доступность</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in order.items.all %}
+        <tr>
+            <td><img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="max-height: 100px;"></td>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>
+                {% if item.product.is_available %}
+                    <span class="text-success">Доступен</span>
+                {% else %}
+                    <span class="text-danger">Недоступен</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'management:order_list' %}" class="btn btn-secondary">Назад</a>
+
+{% endblock %}

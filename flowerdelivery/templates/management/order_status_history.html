@@ -1,0 +1,39 @@
+<!-- flowerdelivery/templates/management/order_status_history.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}История изменений заказа #{{ order.id }} | Classic Floral Shop {% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">История изменений статуса заказа #{{ order.id }}</h2>
+
+{% if status_history %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Дата изменения</th>
+                <th>Предыдущий статус</th>
+                <th>Новый статус</th>
+                <th>Изменено пользователем</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for status in status_history %}
+            <tr>
+                <td>{{ status.changed_at|date:"d.m.Y H:i" }}</td>
+                <td>{{ status.previous_status }}</td>
+                <td>{{ status.new_status }}</td>
+                <td>{{ status.changed_by.username }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>История изменений отсутствует.</p>
+{% endif %}
+
+<div class="text-center mt-4">
+    <a href="{% url 'management:order_list' %}" class="btn btn-secondary">Назад</a>
+</div>
+
+{% endblock %}

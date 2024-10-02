@@ -1,7 +1,8 @@
 <!-- flowerdelivery/templates/orders/order_history.html -->
+
 {% extends 'base.html' %}
 
-{% block title %}История заказов | FlowerDelivery{% endblock %}
+{% block title %}История заказов | Classic Floral Shop{% endblock %}
 
 {% block content %}
 <h2 class="text-center mb-4">Ваша история заказов</h2>
@@ -9,8 +10,37 @@
 <ul class="list-group">
     {% for order in orders %}
     <li class="list-group-item">
-        Заказ #{{ order.id }} - {{ order.status }} - {{ order.total_price }} ₽
-        <a href="{% url 'order_detail' order.id %}" class="btn btn-link">Подробнее</a>
+        Заказ №{{ order.id }} - {{ order.get_status_display }} - {{ order.total_price }} ₽
+        <br>
+        <strong>Дата создания:</strong> {{ order.created_at|date:"d-m-Y, H:i" }}<br>
+        <strong>Доставка:</strong> {{ order.delivery_address }}<br>
+        <strong>Телефон:</strong> {{ order.contact_phone }}<br>
+        <strong>Дата доставки:</strong> {{ order.delivery_date|date:"d-m-Y" }}<br>
+        <strong>Время доставки:</strong> {{ order.delivery_time|time:"H:i" }}<br>
+        <strong>Дополнительная информация:</strong> {{ order.additional_info }}<br>
+
+        <ul>
+            {% for item in order.items.all %}
+            <li>
+                <strong>Букет:</strong> {{ item.product.name }}<br>
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 80px;"><br>
+                <strong>Количество:</strong> {{ item.quantity }}<br>
+                <strong>Цена при покупке:</strong> {{ item.price_at_purchase }} ₽<br>
+
+                {% if item.product.is_available %}
+                    <strong>Текущая цена:</strong> {{ item.product.price }} ₽<br>
+                    <!-- Кнопка добавления в корзину -->
+                    <form action="{% url 'cart:add_to_cart_from_history' item.product.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary">В корзину</button>
+                    </form>
+                {% else %}
+                    <strong class="text-danger">Товар не доступен к заказу</strong>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
     </li>
     {% endfor %}
 </ul>

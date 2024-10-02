@@ -1,0 +1,14 @@
+<!-- flowerdelivery/templates/orders/order_success.html -->
+
+{% extends 'base.html' %}
+{% block title %}Заказ успешно оформлен | Classic Floral Shop {% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4" style="color: #7B4E2F;">Спасибо за ваш заказ!</h2>
+    <p class="text-center" style="color: #5a4632;">Ваш заказ был успешно оформлен. Мы скоро свяжемся с вами для подтверждения.</p>
+    <div class="text-center">
+        <a href="{% url 'orders:order_history' %}" class="btn btn-primary">Перейти к истории заказов</a>
+    </div>
+</div>
+{% endblock %}

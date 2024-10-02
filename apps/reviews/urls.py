@@ -1,7 +1,11 @@
+# apps/reviews/urls.py
+
 from django.urls import path
-from .views import review_list_view, review_create_view
+from . import views
+
+app_name = 'reviews'
 
 urlpatterns = [
-    path('product/<int:product_id>/', review_list_view, name='review_list'),  # Просмотр отзывов для продукта
-    path('product/<int:product_id>/add/', review_create_view, name='review_create'),  # Добавление отзыва
+    path('add/<int:product_id>/', views.add_review, name='add_review'),
+    path('edit/<int:review_id>/', views.edit_review, name='edit_review'),
 ]

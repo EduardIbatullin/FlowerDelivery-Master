@@ -1,36 +1,58 @@
 <!-- flowerdelivery/templates/cart/cart_detail.html -->
-{% extends 'base.html' %}
 
-{% block title %}Корзина | FlowerDelivery{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Корзина цветов | Classic Floral Shop{% endblock %}
 
 {% block content %}
-<h2 class="text-center mb-4">Ваша корзина</h2>
+<h2 class="text-center mb-4">Ваша корзина цветов</h2>
 {% if cart_items %}
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Продукт</th>
-            <th scope="col">Количество</th>
-            <th scope="col">Цена</th>
-            <th scope="col">Всего</th>
-            <th scope="col">Действия</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in cart_items %}
-        <tr>
-            <td>{{ item.product.name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ item.product.price }} ₽</td>
-            <td>{{ item.total_price }} ₽</td>
-            <td>
-                <a href="#" class="btn btn-sm btn-danger">Удалить</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<a href="{% url 'order_create' %}" class="btn btn-success">Оформить заказ</a>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Название букета</th>
+                <th scope="col">Количество</th>
+                <th scope="col">Цена за штуку</th>
+                <th scope="col">Всего</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td data-label="Изображение">
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" title="{{ item.product.description }}" style="width: 50px; height: auto;">
+                </td>
+                <td data-label="Название">{{ item.product.name }}</td>
+                <td data-label="Количество">
+                    <form action="{% url 'cart:update_cart_item' item.pk %}" method="post">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control" style="width: 50px; display: inline-block;">
+                        <button type="submit" class="btn btn-sm btn-primary">Обновить</button>
+                    </form>
+                </td>
+                <td data-label="Цена">{{ item.product.price }} ₽</td>
+                <td data-label="Итоговая цена">{{ item.total_price }} ₽</td>
+                <td data-label="Удалить">
+                    <a href="{% url 'cart:remove_from_cart' item.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Итоговая цена -->
+<div class="text-right mb-3">
+    <h4>Итоговая сумма: {{ cart.total_price }} ₽</h4> <!-- Отображаем итоговую сумму -->
+</div>
+
+<!-- Кнопка оформления заказа -->
+<a href="{% url 'orders:order_create' %}" class="btn btn-primary mb-2">Оформить заказ</a>
+
 {% else %}
 <p>Ваша корзина пуста.</p>
 {% endif %}
