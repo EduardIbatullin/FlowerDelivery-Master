@@ -1,39 +1,75 @@
 # apps/management/forms.py
 
-from django import forms
-from apps.orders.models import Order
+from django import forms  # Импорт базового модуля для работы с формами Django
+
+from apps.orders.models import Order  # Импорт модели заказа для использования в форме
 
 
 class OrderStatusForm(forms.ModelForm):
+    """
+    Форма для изменения статуса заказа.
 
-    """Форма для изменения статуса заказа"""
+    Данный класс предоставляет форму для изменения статуса конкретного заказа.
+    Используется в административной панели для обновления статуса заказа
+    (например, с 'Ожидание' на 'Доставлен').
+
+    Атрибуты:
+        - model: Связь с моделью `Order`.
+        - fields: Поле `status`, которое используется для выбора статуса заказа.
+        - labels: Подпись для поля `status`.
+        - widgets: Виджет для отображения поля `status` в виде HTML select.
+
+    Параметры:
+        - current_status (str): Текущий статус заказа (передается в `kwargs` при создании формы).
+    """
 
     class Meta:
-        model = Order
-        fields = ['status']
+        model = Order  # Связывает форму с моделью Order
+        fields = ['status']  # Поле, которое должно отображаться в форме
         labels = {
-            'status': 'Выберите новый статус',
+            'status': 'Выберите новый статус',  # Отображаемое имя для поля выбора статуса
         }
         widgets = {
-            'status': forms.Select(attrs={'class': 'form-control'})
+            'status': forms.Select(attrs={'class': 'form-control'})  # Виджет выбора с CSS классом 'form-control'
         }
 
     def __init__(self, *args, **kwargs):
-        current_status = kwargs.pop('current_status', None)
+        """
+        Конструктор формы, инициализирующий поля и их атрибуты.
+
+        В дополнение к стандартным параметрам формы, метод принимает аргумент `current_status`,
+        который может использоваться для проверки текущего статуса заказа.
+
+        Если заказ уже завершен (complete=True), поле выбора статуса будет отключено.
+        """
+        current_status = kwargs.pop('current_status', None)  # Извлечение текущего статуса из аргументов
         super(OrderStatusForm, self).__init__(*args, **kwargs)
 
+        # Если заказ завершен, блокируем возможность изменения статуса
         if self.instance.complete:
             self.fields['status'].widget.attrs['disabled'] = True
 
 
 class OrderFilterForm(forms.Form):
+    """
+    Форма для фильтрации заказов по статусу и завершенности.
+
+    Данный класс предоставляет форму для фильтрации списка заказов
+    по следующим критериям:
+    1. Статус заказа (например, 'Доставлен', 'В обработке' и т.д.)
+    2. Завершенность заказа (завершен или не завершен)
+
+    Атрибуты:
+        - status (ChoiceField): Поле выбора статуса заказа с опцией 'Все'.
+        - complete (ChoiceField): Поле выбора завершенности заказа с опциями 'Завершен', 'Не завершен' и 'Все'.
+    """
     status = forms.ChoiceField(
-        choices=[('', 'Все')] + Order.STATUS_CHOICES,
-        required=False,
+        choices=[('', 'Все')] + Order.STATUS_CHOICES,  # Добавление опции 'Все' к списку статусов
+        required=False,  # Поле необязательное для выбора
         label="Статус заказа"
     )
     complete = forms.ChoiceField(
-        choices=[('', 'Все'), ('True', 'Завершен'), ('False', 'Не завершен')],
-        required=False,
+        choices=[('', 'Все'), ('True', 'Завершен'), ('False', 'Не завершен')],  # Опции для фильтрации завершенности
+        required=False,  # Поле необязательное для выбора
         label="Завершение заказа"
     )

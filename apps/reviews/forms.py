@@ -1,18 +1,40 @@
-# apps/reviews/forms.py
+# apps\reviews\forms.py
 
-from django import forms
-from .models import Review
+from django import forms  # Импорт модуля форм Django для создания пользовательских форм
+
+from .models import Review  # Импорт модели Review для использования в форме отзыва
 
 
 class ReviewForm(forms.ModelForm):
+    """
+    Форма для создания и редактирования отзывов пользователей о продукте.
+
+    Эта форма основана на модели Review и позволяет пользователям вводить оценку и комментарий к продукту.
+
+    Атрибуты Meta:
+        model: Модель, на основе которой создается форма.
+        fields: Список полей модели, которые будут включены в форму.
+        labels: Словарь с пользовательскими метками для полей формы.
+        widgets: Словарь с виджетами для настройки отображения полей формы.
+
+    Поля формы:
+        rating: Оценка продукта, выбираемая из диапазона от 1 до 5.
+        comment: Текстовый комментарий пользователя о продукте.
+    """
+
     class Meta:
-        model = Review
-        fields = ['rating', 'comment']
+        model = Review  # Указание модели Review для создания формы
+        fields = ['rating', 'comment']  # Поля модели, которые будут отображаться в форме
         labels = {
-            'rating': 'Оценка (1-5)',
-            'comment': 'Текст отзыва'
+            'rating': 'Оценка (1-5)',  # Пользовательская метка для поля 'rating'
+            'comment': 'Текст отзыва'   # Пользовательская метка для поля 'comment'
         }
         widgets = {
-            'rating': forms.Select(choices=[(i, i) for i in range(1, 6)], attrs={'class': 'form-control'}),
-            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'rating': forms.Select(
+                choices=[(i, i) for i in range(1, 6)],  # Создание списка вариантов от 1 до 5 для оценки
+                attrs={'class': 'form-control'}  # Добавление CSS-класса для стилизации поля 'rating'
+            ),
+            'comment': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 5}  # Настройка текстовой области для комментария
+            ),
         }

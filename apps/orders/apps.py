@@ -1,6 +1,18 @@
-from django.apps import AppConfig
+# apps/orders/apps.py
+
+from django.apps import AppConfig  # Импорт базового класса конфигурации приложения Django
 
 
 class OrdersConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.orders'
+    """
+    Конфигурация приложения 'Orders' (Заказы).
+
+    Этот класс отвечает за настройки приложения заказов, такие как имя приложения и
+    автоматическое поле ID, используемое для всех моделей в приложении.
+
+    Атрибуты:
+        default_auto_field (str): Тип поля ID по умолчанию для моделей приложения.
+        name (str): Указание пути к приложению в структуре проекта.
+    """
+    default_auto_field = 'django.db.models.BigAutoField'  # Тип поля ID по умолчанию для моделей приложения
+    name = 'apps.orders'  # Указание пути к приложению в структуре проекта

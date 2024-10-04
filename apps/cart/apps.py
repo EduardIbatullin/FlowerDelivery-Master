@@ -1,6 +1,17 @@
-from django.apps import AppConfig
+# apps/cart/apps.py
+
+from django.apps import AppConfig  # Импорт конфигурационного класса приложения
 
 
 class CartConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.cart'
+    """
+    Конфигурационный класс для приложения `cart`.
+
+    Определяет параметры конфигурации и метаданные для приложения корзины.
+
+    Атрибуты:
+        default_auto_field (str): Устанавливает тип первичного ключа по умолчанию для моделей в приложении.
+        name (str): Задает полное имя приложения, которое используется Django для поиска и управления приложением.
+    """
+    default_auto_field = 'django.db.models.BigAutoField'  # Устанавливает тип поля ID по умолчанию как BigAutoField
+    name = 'apps.cart'  # Определяет имя приложения в структуре проекта

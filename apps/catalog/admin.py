@@ -1,19 +1,45 @@
 # apps/catalog/admin.py
 
-from django.contrib import admin
-from .models import Product
+from django.contrib import admin  # Импорт модуля admin для регистрации моделей в административной панели
+
+from .models import Product  # Импорт модели Product из текущего приложения
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    """
+    Класс конфигурации отображения модели Product в административной панели Django.
+
+    Определяет, какие поля будут отображаться в списке продуктов, какие фильтры
+    можно использовать и как будет производиться поиск по модели.
+
+    Параметры:
+        - list_display: Определяет список полей, отображаемых в админке для каждого продукта.
+        - search_fields: Указывает поля, по которым можно осуществлять поиск.
+        - list_filter: Устанавливает фильтры, доступные в админке для модели.
+    """
     list_display = ['name', 'price', 'is_available', 'image_preview']
     search_fields = ['name']
     list_filter = ['is_available']
 
-    # Функция для отображения превью изображения в админке
     def image_preview(self, obj):
+        """
+        Метод для отображения превью изображения продукта в админке.
+
+        Проверяет, если у продукта задано изображение, то возвращает HTML-тег с
+        уменьшенной версией изображения для отображения в панели администратора.
+        Если изображение отсутствует, возвращает сообщение "Нет изображения".
+
+        Аргументы:
+            obj (Product): Объект модели Product, для которого формируется превью.
+
+        Возвращает:
+            str: HTML-тег с изображением или сообщение "Нет изображения".
+        """
         if obj.image:
             return '<img src="{}" width="50" height="50" />'.format(obj.image.url)
         return 'Нет изображения'
-    image_preview.allow_tags = True
-    image_preview.short_description = 'Превью'
+
+    # Атрибуты для корректного отображения метода image_preview в админке
+    image_preview.allow_tags = True  # Разрешает использование HTML-тегов в выводе
+    image_preview.short_description = 'Превью'  # Устанавливает название столбца в админке

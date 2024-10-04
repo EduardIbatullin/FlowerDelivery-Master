@@ -1,35 +1,60 @@
 # apps/users/views.py
 
-import logging
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth import get_user_model, logout
-from django.urls import reverse_lazy
-from django.contrib import messages
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
+import logging  # Импортируем модуль для ведения журнала логов
+import json  # Модуль для работы с JSON-данными
 
-from .forms import UserProfileForm, CustomUserCreationForm
-from .models import Profile
+from django.shortcuts import render, redirect  # Функции для рендеринга шаблонов и перенаправления
+from django.contrib.auth.decorators import login_required  # Декоратор для ограничения доступа неавторизованным пользователям
+from django.contrib.auth.views import LoginView, LogoutView  # Представления для входа и выхода пользователей
+from django.contrib.auth import get_user_model, logout  # Функции для работы с пользовательской моделью и выхода из системы
+from django.urls import reverse_lazy  # Функция для получения URL по имени маршрута с ленивой оценкой
+from django.contrib import messages  # Фреймворк для отправки уведомлений пользователям
+from django.http import JsonResponse  # Класс для создания JSON-ответов
+from django.views.decorators.csrf import csrf_exempt  # Декоратор для отключения проверки CSRF-токена
+
+
+from .forms import UserProfileForm, CustomUserCreationForm  # Импорт пользовательских форм
+from .models import Profile  # Импорт модели профиля пользователя
 
 # Инициализация логгера
 logger = logging.getLogger(__name__)
 
-User = get_user_model()
+User = get_user_model()  # Получение пользовательской модели
 
 
 class CustomLoginView(LoginView):
-    template_name = 'auth/login.html'
-    redirect_authenticated_user = True
+    """
+    Представление для входа пользователя в систему.
+
+    Использует шаблон 'auth/login.html' и перенаправляет аутентифицированных пользователей.
+    """
+
+    template_name = 'auth/login.html'  # Шаблон для отображения страницы входа
+    redirect_authenticated_user = True  # Перенаправление аутентифицированных пользователей
 
     def get_success_url(self):
+        """
+        Определяет URL для перенаправления после успешного входа.
+
+        Возвращает:
+            str: URL для перенаправления пользователя.
+        """
         return reverse_lazy('catalog:catalog_list')
 
 
 @login_required
 def profile_view(request):
+    """
+    Отображает профиль текущего пользователя.
+
+    Получает данные пользователя и его профиля, передает их в шаблон для отображения информации.
+
+    Аргументы:
+        request: Объект HttpRequest с данными запроса.
+
+    Возвращает:
+        HttpResponse: Ответ с отрендеренным шаблоном профиля пользователя.
+    """
     user = request.user
     try:
         profile = user.profile
@@ -37,7 +62,7 @@ def profile_view(request):
         profile = Profile.objects.create(user=user)
 
     telegram_id_value = profile.telegram_id
-    logger.info(f"Telegram ID for user {user.username}: {telegram_id_value}")
+    logger.info(f"Telegram ID для пользователя {user.username}: {telegram_id_value}")
 
     profile_data = {
         'last_name': user.last_name or '—',
@@ -54,6 +79,17 @@ def profile_view(request):
 
 @login_required
 def edit_profile_view(request):
+    """
+    Позволяет пользователю редактировать свой профиль.
+
+    Обрабатывает GET и POST запросы для отображения и сохранения формы редактирования профиля.
+
+    Аргументы:
+        request: Объект HttpRequest с данными запроса.
+
+    Возвращает:
+        HttpResponse: Ответ с отрендеренным шаблоном или перенаправление после сохранения.
+    """
     user = request.user
     profile = user.profile
 
@@ -74,16 +110,40 @@ def edit_profile_view(request):
 
 @login_required
 def register_bot(request):
+    """
+    Отображает сообщение об успешной регистрации в Telegram-боте.
+
+    Аргументы:
+        request: Объект HttpRequest с данными запроса.
+
+    Возвращает:
+        HttpResponseRedirect: Перенаправление на страницу профиля пользователя.
+    """
     messages.info(request, 'Вы успешно зарегистрировались в Telegram-боте.')
     return redirect('users:profile')
 
 
 class CustomLogoutView(LogoutView):
-    next_page = reverse_lazy('home')
+    """
+    Представление для выхода пользователя из системы.
+
+    Переопределяет страницу перенаправления после выхода.
+    """
+
+    next_page = reverse_lazy('home')  # URL для перенаправления после выхода
 
 
 @login_required
 def delete_account(request):
+    """
+    Удаляет аккаунт текущего пользователя.
+
+    Аргументы:
+        request: Объект HttpRequest с данными запроса.
+
+    Возвращает:
+        HttpResponseRedirect: Перенаправление на главную страницу после удаления аккаунта.
+    """
     user = request.user
     user.delete()
     messages.success(request, 'Ваш аккаунт был успешно удален.')
@@ -91,6 +151,17 @@ def delete_account(request):
 
 
 def register_view(request):
+    """
+    Обрабатывает регистрацию нового пользователя.
+
+    Отображает форму регистрации и сохраняет нового пользователя при отправке валидных данных.
+
+    Аргументы:
+        request: Объект HttpRequest с данными запроса.
+
+    Возвращает:
+        HttpResponse: Отрендеренный шаблон регистрации или перенаправление после успешной регистрации.
+    """
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -103,6 +174,15 @@ def register_view(request):
 
 
 def logout_view(request):
+    """
+    Выполняет выход пользователя из системы.
+
+    Аргументы:
+        request: Объект HttpRequest с данными запроса.
+
+    Возвращает:
+        HttpResponseRedirect: Перенаправление на главную страницу.
+    """
     logout(request)
     return redirect('home')
 
@@ -110,7 +190,15 @@ def logout_view(request):
 @csrf_exempt
 def save_telegram_id(request):
     """
-    Сохраняет telegram_id в профиле пользователя на основе user_id, полученного от бота.
+    Сохраняет Telegram ID в профиле пользователя на основе user_id, полученного от бота.
+
+    Обрабатывает POST-запрос с JSON-данными, содержащими 'telegram_id' и 'user_id'.
+
+    Аргументы:
+        request: Объект HttpRequest с данными запроса.
+
+    Возвращает:
+        JsonResponse: JSON-ответ с результатом операции.
     """
     if request.method == 'POST':
         try:
@@ -122,11 +210,9 @@ def save_telegram_id(request):
 
             if telegram_id and user_id:
                 try:
-                    # Ищем пользователя по user_id
                     user = User.objects.get(id=user_id)
                     profile = user.profile
 
-                    # Проверка, не зарегистрирован ли уже этот telegram_id
                     if profile.telegram_id == telegram_id:
                         return JsonResponse({'status': 'success', 'message': 'Этот Telegram ID уже привязан к вашему профилю.'})
 
@@ -155,6 +241,14 @@ def save_telegram_id(request):
 def get_user_data(request):
     """
     Возвращает данные пользователя по user_id.
+
+    Обрабатывает POST-запрос с JSON-данными, содержащими 'user_id'.
+
+    Аргументы:
+        request: Объект HttpRequest с данными запроса.
+
+    Возвращает:
+        JsonResponse: JSON-ответ с данными пользователя или сообщением об ошибке.
     """
     if request.method == 'POST':
         try:
@@ -183,6 +277,14 @@ def get_user_data(request):
 def get_user_data_by_telegram_id(request):
     """
     Возвращает данные пользователя по telegram_id.
+
+    Обрабатывает POST-запрос с JSON-данными, содержащими 'telegram_id'.
+
+    Аргументы:
+        request: Объект HttpRequest с данными запроса.
+
+    Возвращает:
+        JsonResponse: JSON-ответ с данными пользователя или сообщением об ошибке.
     """
     if request.method == 'POST':
         try:
@@ -190,27 +292,21 @@ def get_user_data_by_telegram_id(request):
             telegram_id = data.get('telegram_id')
 
             if telegram_id:
-                try:
-                    # Используем filter() вместо get() для предотвращения MultipleObjectsReturned
-                    profiles = Profile.objects.filter(telegram_id=telegram_id)
+                profiles = Profile.objects.filter(telegram_id=telegram_id)
 
-                    if profiles.exists():
-                        # Получаем первый профиль из списка, если есть несколько
-                        profile = profiles.first()
-                        user = profile.user
-                        return JsonResponse({
-                            'status': 'success',
-                            'user_data': {
-                                'first_name': user.first_name,
-                                'is_admin': user.is_staff or user.is_superuser,
-                            }
-                        })
-                    else:
-                        return JsonResponse(
-                            {'status': 'error', 'message': 'Пользователь с данным Telegram ID не найден'}, status=404)
-                except Profile.DoesNotExist:
-                    return JsonResponse({'status': 'error', 'message': 'Пользователь с данным Telegram ID не найден'},
-                                        status=404)
+                if profiles.exists():
+                    profile = profiles.first()
+                    user = profile.user
+                    return JsonResponse({
+                        'status': 'success',
+                        'user_data': {
+                            'first_name': user.first_name,
+                            'is_admin': user.is_staff or user.is_superuser,
+                        }
+                    })
+                else:
+                    return JsonResponse(
+                        {'status': 'error', 'message': 'Пользователь с данным Telegram ID не найден'}, status=404)
             else:
                 return JsonResponse({'status': 'error', 'message': 'Telegram ID не предоставлен'}, status=400)
         except json.JSONDecodeError:

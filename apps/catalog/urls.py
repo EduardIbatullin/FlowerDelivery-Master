@@ -1,11 +1,28 @@
 # apps/catalog/urls.py
 
-from django.urls import path
-from .views import catalog_list_view, product_detail_view
+from django.urls import path  # Импортируем модуль path для определения маршрутов в приложении
 
+from .views import catalog_list_view, product_detail_view  # Импорт представлений каталога для настройки маршрутов
+
+# Установка пространства имен для приложения каталога
 app_name = 'catalog'
 
+# Определение URL-маршрутов для приложения каталога
 urlpatterns = [
-    path('', catalog_list_view, name='catalog_list'),
-    path('product/<int:pk>/', product_detail_view, name='product_detail'),
+    path('', catalog_list_view, name='catalog_list'),  # Главная страница каталога, отображающая список продуктов
+    path('product/<int:pk>/', product_detail_view, name='product_detail'),  # Страница деталей продукта по его идентификатору (pk)
 ]
+
+"""
+Описание URL-маршрутов:
+
+1. `catalog_list` — Отображает список всех доступных продуктов в каталоге.
+   - URL: `/`
+   - Назначение: Показывает все доступные продукты, добавленные в каталог.
+   - Представление: `catalog_list_view` отображает список продуктов.
+
+2. `product_detail` — Отображает подробную информацию о конкретном продукте.
+   - URL: `/product/<int:pk>/`
+   - Назначение: Показать информацию о продукте по его первичному ключу (pk).
+   - Представление: `product_detail_view` отображает описание продукта, отзывы и форму для оставления отзыва.
+"""

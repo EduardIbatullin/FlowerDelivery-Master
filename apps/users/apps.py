@@ -1,11 +1,26 @@
 # apps/users/apps.py
 
-from django.apps import AppConfig
+from django.apps import AppConfig  # Импорт базового класса конфигурации приложения из Django
 
 
 class UsersConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.users'
+    """
+    Конфигурация приложения 'users'.
+
+    Этот класс настраивает приложение 'users' и связывает сигналы при готовности приложения.
+
+    Атрибуты:
+        default_auto_field: Тип поля по умолчанию для автоматических первичных ключей моделей.
+        name: Имя приложения, используемое Django для его идентификации.
+    """
+
+    default_auto_field = 'django.db.models.BigAutoField'  # Устанавливает тип поля по умолчанию для моделей
+    name = 'apps.users'  # Указывает имя приложения для регистрации в проекте
 
     def ready(self):
-        import apps.users.signals
+        """
+        Метод, вызываемый при готовности приложения.
+
+        Импортирует модуль сигналов для связывания обработчиков сигналов с моделями приложения.
+        """
+        import apps.users.signals  # Импорт сигналов для настройки обработчиков событий

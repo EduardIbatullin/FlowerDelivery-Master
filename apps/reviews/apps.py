@@ -1,6 +1,18 @@
-from django.apps import AppConfig
+# apps\reviews\apps.py
+
+from django.apps import AppConfig  # Импорт базового класса конфигурации приложения из Django
 
 
 class ReviewsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.reviews'
+    """
+    Настраивает приложение 'reviews' для проекта Django.
+
+    Этот класс определяет конфигурацию приложения 'reviews', включая настройки автоматических полей и имя приложения.
+
+    Атрибуты:
+        default_auto_field: Тип поля для автоматических первичных ключей моделей.
+        name: Полное имя приложения, которое используется Django для его идентификации.
+    """
+
+    default_auto_field = 'django.db.models.BigAutoField'  # Устанавливает тип поля для автоматических первичных ключей моделей
+    name = 'apps.reviews'  # Указывает полное имя приложения для регистрации в проекте
